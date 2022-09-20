@@ -1,0 +1,7 @@
+---
+- import_tasks: preflight.yml
+  tags:
+    - babashka_install
+
+- import_tasks: install.yml
+  become: true

@@ -1,0 +1,5 @@
+---
+babashka_version: "latest" # latest or version
+babashka_checksum: "" # 
+_babashka_binary_install_dir: "/usr/local/bin"
+babashka_binary_local_dir: ""

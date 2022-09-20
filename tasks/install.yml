@@ -1,0 +1,39 @@
+---
+- name: Download babashka binary to local folder
+  become: false
+  get_url:
+    url: "https://github.com/babashka/babashka/releases/download/v{{ babashka_version }}/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz"
+    dest: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz"
+    #checksum: "sha256:{{ babashka_checksum }}"
+    mode: '0644'
+  register: _download_binary
+  until: _download_binary is succeeded
+  retries: 5
+  delay: 2
+  delegate_to: localhost
+  check_mode: false
+
+- name: Create a temporary folder for babashka binary
+  file:
+    path: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}/"
+    state: directory
+    mode: 0777
+  when: not ansible_check_mode
+
+- name: Unpack babashka binary
+  become: false
+  unarchive:
+    src: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz"
+    dest: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}/"
+    creates: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}/bb"
+  delegate_to: localhost
+  check_mode: false
+
+- name: Propagate babashka binaries
+  copy:
+    src: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}/bb"
+    dest: "{{ _babashka_binary_install_dir }}/bb"
+    mode: 0755
+    owner: root
+    group: root
+  when: not ansible_check_mode

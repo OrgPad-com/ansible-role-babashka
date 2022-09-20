@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  author: OrgPad-com
+  role_name: babashka
+  description: Install Babashka
+  license: EPL 2.0
+  company: none
+
+dependencies: []
