@@ -4,7 +4,7 @@
   get_url:
     url: "https://github.com/babashka/babashka/releases/download/v{{ babashka_version }}/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz"
     dest: "/tmp/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz"
-    #checksum: "sha256:{{ babashka_checksum }}"
+    checksum: "sha256:{{ babashka_checksum }}"
     mode: '0644'
   register: _download_binary
   until: _download_binary is succeeded

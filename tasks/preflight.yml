@@ -31,17 +31,22 @@
   delegate_to: localhost
   run_once: true
 
-  #- block:
-  #    - name: Get checksum list from github
-  #      set_fact:
-  #        _checksums: "{{ lookup('url', 'https://github.com/babashka/babashka/releases/download/v' + babashka_version + '/sha256sums.txt', wantlist=True) | list }}"
-  #      run_once: true
-  #
-  #    - name: "Get checksum for {{ arch }} architecture"
-  #      set_fact:
-  #        babashka_checksum: "{{ item.split(' ')[0] }}"
-  #      with_items: "{{ _checksums }}"
-  #      when:
-  #        - "('linux-' + arch + '.tar.gz') in item"
-  #  delegate_to: localhost
-  #  when: babashka_binary_local_dir | length == 0
+- block:
+    - name: Get release checksum
+      uri:
+        url: "https://github.com/babashka/babashka/releases/download/v{{ babashka_version }}/babashka-{{ babashka_version }}-linux-{{ arch }}.tar.gz.sha256"
+        method: GET
+        return_content: true
+        status_code: 200
+        user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+        password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+      no_log: "{{ not lookup('env', 'MOLECULE_DEBUG') | bool }}"
+      register: _latest_checksum
+      until: _latest_checksum.status == 200
+      retries: 5
+
+    - name: "Get checksum"
+      set_fact:
+        babashka_checksum: "{{ _latest_checksum.content }}"
+  delegate_to: localhost
+  when: babashka_binary_local_dir | length == 0
